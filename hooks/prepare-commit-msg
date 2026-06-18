@@ -22,11 +22,11 @@ case "$COMMIT_SOURCE" in
   merge|squash) exit 0 ;;
 esac
 
-TRAILER_AUTOR="Co-Authored-By: Claude <noreply@anthropic.com>"
+TRAILER_AUTOR="Co-Authored-By: AI Assistant <ai@noreply.local>"
 TRAILER_TOOL="AI-Tool:"
 
 # ja tem trailer? nao duplica
-if grep -q "Co-Authored-By: Claude" "$COMMIT_MSG_FILE"; then
+if grep -q "Co-Authored-By: AI Assistant" "$COMMIT_MSG_FILE"; then
   exit 0
 fi
 

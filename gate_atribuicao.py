@@ -47,7 +47,7 @@ def commits_do_pr(repo, base="main"):
 
 def tem_trailer(repo, sha):
     corpo = git(repo, "show", "-s", "--format=%B", sha)
-    return "Co-Authored-By: Claude" in corpo
+    return "Co-Authored-By: AI Assistant" in corpo
 
 
 def branch_marca_ia(branch):

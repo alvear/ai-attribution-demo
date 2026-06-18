@@ -15,7 +15,7 @@ Equivalente em terminal:
 
 Por quê: o hook de git `prepare-commit-msg` deste repo lê esse marcador e, se
 ele tiver menos de 30 minutos, injeta automaticamente o trailer
-`Co-Authored-By: Claude <noreply@anthropic.com>` no commit — pelo terminal ou
+`Co-Authored-By: AI Assistant <ai@noreply.local>` no commit — pelo terminal ou
 pelo botão de commit da IDE.
 
 Regras:

@@ -7,7 +7,7 @@ def git(repo,*a): return subprocess.run(["git","-C",repo,*a],capture_output=True
 def declarados(repo):
     s=set()
     for sha in git(repo,"log","--format=%H").split():
-        if "Co-Authored-By: Claude" in git(repo,"show","-s","--format=%B",sha):
+        if "Co-Authored-By: AI Assistant" in git(repo,"show","-s","--format=%B",sha):
             for arq in git(repo,"show","--name-only","--format=",sha).split(): s.add(arq)
     return s
 

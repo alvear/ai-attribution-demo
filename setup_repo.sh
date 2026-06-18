@@ -30,7 +30,7 @@ commit_data () {  # <dias_atras> <msg> [--trailer cursor]
   if [ "$trailer" = "cursor" ]; then
     full="$msg
 
-Co-Authored-By: Claude <noreply@anthropic.com>
+Co-Authored-By: AI Assistant <ai@noreply.local>
 AI-Tool: cursor"
   fi
   GIT_AUTHOR_DATE="$data" GIT_COMMITTER_DATE="$data" git add -A
