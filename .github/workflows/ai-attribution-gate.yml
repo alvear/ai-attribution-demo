@@ -1,0 +1,65 @@
+# .github/workflows/ai-attribution-gate.yml
+#
+# Gate de atribuicao de IA — roda em todo Pull Request.
+# Implementa, no servidor (CI), a CAMADA 1 (Obrigatoriedade) e a
+# LINHA 2 (Robustez): bloqueia o merge se houver uso de IA nao declarado.
+#
+# PRONTO PARA COLAR num repositorio real. Ajuste apenas:
+#   - o caminho da telemetria (secret ou artifact da sua ferramenta)
+#   - a lista de prefixos de branch e labels aceitos (no gate_atribuicao.py)
+#
+# Para o gate ter efeito de BLOQUEIO, marque este check como obrigatorio em:
+#   Settings > Branches > Branch protection rules > Require status checks.
+
+name: AI Attribution Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (historico completo do PR)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # precisa do historico para inspecionar commits
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Em produção: baixe aqui a telemetria da sua ferramenta de IA
+      # (Cursor analytics / Claude Code OTEL export) como artifact ou via API,
+      # salvando em telemetria.csv com colunas: dev,data,ferramenta,arquivo_tocado,linhas_geradas_ia
+      - name: Obter telemetria de IA
+        run: |
+          if [ ! -f telemetria.csv ]; then
+            echo "dev,data,ferramenta,arquivo_tocado,linhas_geradas_ia" > telemetria.csv
+            echo "(sem telemetria configurada — gate roda so com sinais do Git)"
+          fi
+
+      - name: Rodar gate de atribuicao
+        env:
+          PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ',') }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+          BASE_BRANCH: ${{ github.base_ref }}
+        run: |
+          # extrai o primeiro label relevante, se houver
+          LABEL=""
+          for l in $(echo "$PR_LABELS" | tr ',' ' '); do
+            case "$l" in ai|ia|ai-assisted|ia-assistida) LABEL="$l" ;; esac
+          done
+          python3 gate_atribuicao.py "." "$HEAD_BRANCH" \
+            --pr-label "$LABEL" \
+            --telemetria telemetria.csv \
+            --base "origin/$BASE_BRANCH"
+
+      # Se o passo acima sair com codigo != 0, o job falha e — sendo um
+      # required check — a branch protection impede o merge automaticamente.

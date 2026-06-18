@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+#
+# prepare-commit-msg — LINHA DE DEFESA 1 (Conveniencia)
+#
+# Roda em QUALQUER commit (IDE ou linha de comando) e injeta o trailer
+# de atribuicao de IA automaticamente quando detecta sessao de IA ativa.
+# Resolve o caso do dev que commita pelo terminal, fora da IDE.
+#
+# Deteccao de sessao de IA (em ordem de prioridade):
+#   1. Variavel de ambiente AI_SESSION (setada pela ferramenta/wrapper)
+#   2. Marcador de sessao: arquivo .ai-session no repo (atualizado < 30 min)
+#   3. Prompt interativo como fallback (se TTY disponivel)
+#
+# Limitacao honesta: e client-side, logo BURLAVEL. E conveniencia, nao
+# garantia. A garantia vem do gate server-side (Linha 2).
+#
+COMMIT_MSG_FILE="$1"
+COMMIT_SOURCE="${2:-}"
+
+# nao mexe em merges, squashes, amends com mensagem pronta
+case "$COMMIT_SOURCE" in
+  merge|squash) exit 0 ;;
+esac
+
+TRAILER_AUTOR="Co-Authored-By: Claude <noreply@anthropic.com>"
+TRAILER_TOOL="AI-Tool:"
+
+# ja tem trailer? nao duplica
+if grep -q "Co-Authored-By: Claude" "$COMMIT_MSG_FILE"; then
+  exit 0
+fi
+
+detectar_ia() {
+  # 1. variavel de ambiente
+  if [ -n "${AI_SESSION:-}" ]; then
+    echo "${AI_SESSION}"   # valor = nome da ferramenta (ex: cursor)
+    return 0
+  fi
+  # 2. marcador de sessao recente (.ai-session com timestamp)
+  local marcador
+  marcador="$(git rev-parse --show-toplevel 2>/dev/null)/.ai-session"
+  if [ -f "$marcador" ]; then
+    local ts agora idade
+    ts="$(stat -c %Y "$marcador" 2>/dev/null || echo 0)"
+    agora="$(date +%s)"
+    idade=$(( agora - ts ))
+    if [ "$idade" -lt 1800 ]; then     # 30 min
+      cat "$marcador"
+      return 0
+    fi
+  fi
+  return 1
+}
+
+if FERRAMENTA="$(detectar_ia)"; then
+  {
+    echo ""
+    echo "$TRAILER_AUTOR"
+    echo "$TRAILER_TOOL ${FERRAMENTA}"
+  } >> "$COMMIT_MSG_FILE"
+  echo "[prepare-commit-msg] sessao de IA detectada (${FERRAMENTA}) -> trailer injetado" >&2
+fi
+
+exit 0
