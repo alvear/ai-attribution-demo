@@ -1,0 +1,32 @@
+# ============================================================
+# COMANDOS PARA VOCE RODAR — nao deixe o agente executar estes.
+# Eles tocam suas credenciais e seu GitHub remoto.
+# Substitua SEU_USUARIO e o nome do repo conforme criou na web.
+# ============================================================
+
+# --- FASE 3: conectar local ao GitHub e push ---
+git init -b main
+git add gate_atribuicao.py detectar_delta.py verificar_integridade.py \
+        gerar_relatorio.py setup_repo.sh demonstrar.sh preparar_github.sh \
+        hooks/ .github/ telemetria_sintetica.csv telemetria_bloqueio.csv \
+        README.md CAMADAS_E_LINHAS.md RUNBOOK_MAQUINA_GITHUB.md
+
+# reinstala o hook (git init recriou .git/hooks)
+mkdir -p .git/hooks && cp hooks/prepare-commit-msg .git/hooks/ && chmod +x .git/hooks/prepare-commit-msg
+
+git commit -m "chore: estrutura inicial da demo de atribuicao de IA"
+git remote add origin https://github.com/SEU_USUARIO/ai-attribution-demo.git
+git push -u origin main
+
+# Na autenticacao, use seu Personal Access Token como senha.
+# (GitHub > Settings > Developer settings > Personal access tokens)
+
+# --- FASE 5B: criar a branch do cenario de bloqueio ---
+git checkout -b feature/sem-declaracao
+# ... gere codigo com IA no Antigravity, commite SEM trailer ...
+git push -u origin feature/sem-declaracao
+# Depois abra o Pull Request pela web e observe o gate falhar.
+
+# --- FASE 5C: tentar reescrever historico (deve ser REJEITADO pelo GitHub) ---
+git commit --amend -m "tentativa de apagar atribuicao"
+git push --force   # <- a branch protection deve recusar este push

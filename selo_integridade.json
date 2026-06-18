@@ -1,0 +1,18 @@
+[
+  {
+    "sha": "589fc9b3fdec72e63eedba11ab760b006897cdef",
+    "msg": "feat: camada de cache"
+  },
+  {
+    "sha": "7cc88f3f629c2e7b1fbc4ae6419ae4b01dcb8dad",
+    "msg": "feat: geracao de relatorio"
+  },
+  {
+    "sha": "d64e383072e78c56fd3ef09922d7b050453c8e6e",
+    "msg": "feat: juros compostos"
+  },
+  {
+    "sha": "bb54e4435189e33ea0c667418721eeff5cf644ad",
+    "msg": "base: autenticacao"
+  }
+]
