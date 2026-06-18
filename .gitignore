@@ -1,1 +1,21 @@
+# Marcador efemero de sessao de IA (sinal para o hook; nunca versionar)
 .ai-session
+
+# Artefatos GERADOS pelos scripts da demo (nao versionar)
+relatorio.md
+selo_integridade.json
+COMANDOS_GITHUB.txt
+
+# Repositorios de cenario criados por setup_repo.sh
+repo_demo/
+repo_bloqueio/
+
+# Restos de execucao no sandbox / testes
+_t/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
